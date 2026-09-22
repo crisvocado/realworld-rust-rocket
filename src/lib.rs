@@ -22,6 +22,7 @@ mod auth;
 mod config;
 mod database;
 mod errors;
+pub mod logcore;
 mod models;
 mod routes;
 mod schema;
@@ -71,5 +72,13 @@ pub fn rocket() -> _ {
         .attach(database::Db::fairing())
         .attach(cors_fairing())
         .attach(config::AppState::manage())
-        .register("/", catchers![not_found])
+        .attach(logcore::fairing())
+        .register(
+            "/",
+            catchers![
+                not_found,
+                logcore::internal_error_catcher,
+                logcore::default_catcher
+            ],
+        )
 }
